@@ -1,5 +1,3 @@
-# Task_Manger_
- Task Manager
 # Task Manager (Python + PostgreSQL)
 
 A simple command-line task manager that allows users to sign up, log in, and manage tasks.  
