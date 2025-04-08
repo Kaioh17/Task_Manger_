@@ -1,7 +1,9 @@
 # Task Manager (Python + PostgreSQL)
 
-A simple command-line task manager that allows users to sign up, log in, and manage tasks.  
-Built with Python and PostgreSQL using psycopg2 for database operations.
+This is a simple task manager CLI app written in Python using PostgreSQL as the database.
+
+The goal was to build a working login and task management system from scratch, practice writing clean code, 
+and prep the project for future improvements like testing, APIs, and possibly a web version.
 
 ---
 
