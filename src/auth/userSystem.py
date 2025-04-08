@@ -110,5 +110,4 @@ class UserSystem:
 
 db_connection = DataBase()
 user = UserSystem(db_connection.conn, db_connection.cur)
-user.create_table()
-db_connection.close_database()
+# user.create_table()

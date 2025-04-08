@@ -1,8 +1,5 @@
 """To do task save in dictionary"""
-
-from Task_Manger_.src.db.connection import DataBase
-from Task_Manger_.src.auth.userSystem import UserSystem
-from Task_Manger_.src.db.task_queries import TaskQueries
+from Task_Manger_.src.auth.userSystem import user
 
 
 class TaskManager:
@@ -10,21 +7,12 @@ class TaskManager:
         #using nested dictionaries
         self.to_do_dict = {}
 
-    """task to complete:  when user logs in  user remains active and can easily add tasks till 'logout'
-        tasks: build test environment
-        task 3: make delete feature 
-        
-        task 4: adjust file structure if needed
-        """
-
-
-    def task_info(self):
+    def task_info(self,user_name):
         """User adds task to memory """
         while True:
             try:
                 #User inputs
                 task = input("Task name: ").strip().capitalize()
-
                 # check if task already exists
                 if task in self.to_do_dict: raise ValueError("Task already exists")
                 #checks if task is empty
@@ -107,40 +95,13 @@ class TaskManager:
                 if retry.lower() != 'y':
                     for _ in range(50):
                         print('-',end ="")
-                        print("closing")
+                    print("closed")
                     break
     def __delete__(self):
         """What do you wish to delete?
-
-            check if d
         """
         pass
 
-    def display(self):
-        pass
-
-Taskmanager = TaskManager()
-db_connection = DataBase()
-# tasks = TaskQueries()
-
-user = UserSystem(db_connection.conn, db_connection.cur)
-tasks = TaskQueries(db_connection.conn, db_connection.cur)
-user_name =user.login()
-
-
-
-
-user_input = "Y"
-while user_input.upper() == "Y":
-    navigate_tool = input("Do you want to 'add' a Task, change a 'status','List' all task, or 'delete' a task?: ").strip().lower()
-    if navigate_tool.lower() == 'add':
-        task_name = Taskmanager.task_info()
-        print(tasks.add_task(user_name,task_name))
-    elif navigate_tool.lower() == 'status':
-        print(Taskmanager.status())
-    elif navigate_tool.lower() == 'list':
-        print(Taskmanager.list_all())
-    user_input = input("Do you want to continue?Y|N ").strip().upper()
 
 
 

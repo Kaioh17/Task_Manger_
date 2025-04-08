@@ -39,8 +39,10 @@ class TaskQueries:
         except Exception as e:
             print(f"Error adding task to table {e}")
 
+    """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
     def delete_task(self):
         pass
 
+    def undo_task(self):
+        pass
 db_connection = DataBase()
-db_connection.close_database()
