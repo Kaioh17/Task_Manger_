@@ -1,11 +1,12 @@
 """To do task save in dictionary"""
-from Task_Manger_.src.auth.userSystem import user
+import pandas as pd
 
 
 class TaskManager:
     def __init__(self):
         #using nested dictionaries
         self.to_do_dict = {}
+        self.db_tasks  = []
 
     def task_info(self,user_name):
         """User adds task to memory """
@@ -40,30 +41,28 @@ class TaskManager:
                         print("-", end = "")
                     print("Exited:(")
                     break
-    def list_all(self):
-        """display dictionary using list """
+    def list_all(self, task_dict):
+        """display all task for current user in the database as a table"""
         while True:
             try:
-                #request username before giving the list
-                user_name = input("Enter user name: ")
+                self.db_tasks = task_dict
+                data = []
+                for task_id, value in self.db_tasks.items():
+                    task_name = list(value.keys())[0]
+                    status = value[task_name]
+                    data.append([task_id, task_name, status])
+                df_list = pd.DataFrame(data, columns=[' task_id', ' task_name', ' status' ])
 
-                #handle when user not in dict
-                if user_name not in self.to_do_dict:
-                    raise KeyError("User is not  in memory")
-
-                result = {user_name: list(self.to_do_dict[user_name].items())}
-
-                return result
-            except KeyError as e:
-                print(f"Error: {e}")
+                print ("Table from list of lists:")
+                print(f"-" * 50)
+                return  df_list
+            except Exception as e:
+                print(f"Error in task_manager: {e}")
 
                 retry= input("Do you want to try again(Y|N): ").strip().capitalize()
 
                 if retry.lower() != 'y':
                     break
-
-
-
 
 
     def status(self):
@@ -85,7 +84,6 @@ class TaskManager:
                 """Set a condition so that when status is set to done its delete from db and cache """
 
 
-
                 return print(self.to_do_dict)
 
             except (KeyError,IndexError) as e:
@@ -102,6 +100,18 @@ class TaskManager:
         """
         pass
 
+if __name__ == "__main__":
+    from Task_Manger_.src.auth.userSystem import UserSystem
+    from Task_Manger_.src.db.connection import DataBase
+    from Task_Manger_.src.db.task_queries import TaskQueries
 
-
+    task_manager = TaskManager()
+    db_connection = DataBase()
+    # tasks = TaskQueries()
+    user = UserSystem(db_connection.conn, db_connection.cur)
+    tasks = TaskQueries(db_connection.conn, db_connection.cur)
+    user_name = "Mubaraq"
+    # tasks = TaskQueries(db_connection.conn, db_connection.cur)
+    task_dict = tasks.list_tasks(user_name)
+    print(task_manager.list_all(task_dict))
 
