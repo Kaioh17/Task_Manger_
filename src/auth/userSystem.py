@@ -1,4 +1,7 @@
 import random
+from operator import length_hint
+
+import bcrypt
 from Task_Manger_.src.db.connection import DataBase
 
 
@@ -7,6 +10,8 @@ class UserSystem:
     def __init__(self,conn, cur):
         self.conn = conn
         self.cur = cur
+        """Fixes due:
+                check if password is up to 4"""
     def login(self):
 
         try:
@@ -27,11 +32,11 @@ class UserSystem:
             self.cur.execute(check_username, (user_name,))
             # stores one row from result
             result = self.cur.fetchone() #stores what password in tuple
-
             if result:
-                print(f"{user_name} found in database")
+                logged_pw = result[0]
+                print(f"welcome {user_name} ")
                 password = input("password: ").strip().capitalize()
-                if password == result[0]:
+                if bcrypt.checkpw(password.encode(),logged_pw.encode()):
                     print("Connected successfully you may begin!!!")
                     return user_name
 
@@ -52,30 +57,43 @@ class UserSystem:
             print("There was an error", e)
 
     def create_user(self):
+        while True:
+            try:
+                # get user id then eventually add hashing foe user id
+                user_id = random.randint(1, 9900)
 
-        try:
-            # get user id then eventually add hashing foe user id
-            user_id = random.randint(1, 9900)
+                #ask user for name
+                user_name = input("Choose a user name: ").strip().capitalize()
+                print("Password must be 5 characters long...")
+                user_password = str(input("Choose a password: ")).strip().capitalize()
+                confirm_password = str(input("confirm the password: ")).strip().capitalize() #prompt user to confirm password
+                #check if passwords are the same
+                if user_password != confirm_password: raise ValueError("Passwords do not match....try again")
+                #check if password is correct length
+                if len(confirm_password) < 5: raise ValueError("Password entered is to low... try again")
 
-            #ask user for name
-            user_name = input("Choose a user name: ").strip().capitalize()
-            user_password = input("Choose a password: ").strip().capitalize()
 
-            #create user sql query
-            create_user_query = """
-                                INSERT INTO user_table (user_id, user_name, user_password) VALUES (%s, %s, %s);
-                                """
-            #execute query
-            self.cur.execute(create_user_query, (user_id,user_name,user_password))
+                # hash password to protect password in database
+                hashed_pw = bcrypt.hashpw(confirm_password.encode('utf-8'), bcrypt.gensalt())#protect password in database
+                hashed_pw_str = hashed_pw.decode('utf-8')
+                # print(hashed_pw)
 
-            #commit transaction
-            self.conn.commit()
+                #create user sql query
 
-            print(f"{user_name} successfully created as {user_id}")
-            return user_name
+                create_user_query = """
+                                    INSERT INTO user_table (user_id, user_name, user_password) VALUES (%s, %s, %s);
+                                    """
+                #execute query
+                self.cur.execute(create_user_query, (user_id,user_name,hashed_pw_str))
 
-        except Exception as e:
-            print(f"ERROR: {e}")
+                #commit transaction
+                self.conn.commit()
+
+                print(f"{user_name} successfully created as {user_id}")
+                return user_name
+
+            except Exception as e:
+                print(f"ERROR: {e}")
 
 
         # function to create tables
@@ -108,6 +126,10 @@ class UserSystem:
             print(f"error creating table: {e}")
 
 
-db_connection = DataBase()
-user = UserSystem(db_connection.conn, db_connection.cur)
-# user.create_table()
+if __name__ == "__main__":
+    db_connection = DataBase()
+    user = UserSystem(db_connection.conn, db_connection.cur)
+    # user.login()
+    user.create_user ()
+
+
