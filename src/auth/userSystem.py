@@ -118,6 +118,16 @@ class UserSystem:
                                         FOREIGN KEY (user_id) REFERENCES user_table(user_id)ON DELETE CASCADE
                                         );"""
             self.cur.execute(create_table_query_2)
+            create_table_query_3 = """CREATE TABLE IF NOT EXISTS task_archive(
+                                           archive_id SERIAL PRIMARY KEY,
+                                           task_id INT NOT NULL,
+                                           user_id INT NOT NULL, 
+                                           task_name VARCHAR(225) NOT NULL,
+                                           status VARCHAR(25) NOT NULL,
+                                           deleted_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                           FOREIGN KEY (user_id) REFERENCES user_table(user_id)ON DELETE CASCADE
+                                           );"""
+            self.cur.execute(create_table_query_3)
 
             print("successfully created table ")
             self.conn.commit()
@@ -130,6 +140,6 @@ if __name__ == "__main__":
     db_connection = DataBase()
     user = UserSystem(db_connection.conn, db_connection.cur)
     # user.login()
-    user.create_user ()
+    user.create_table()
 
 

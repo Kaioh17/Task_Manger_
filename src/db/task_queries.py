@@ -59,6 +59,7 @@ class TaskQueries:
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
+                print(all_data)
                 return all_data
 
             return {}
@@ -79,12 +80,43 @@ class TaskQueries:
         """
 
     """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
-    def delete_task(self):
-        pass
+    def delete_task(self,user_name):
+        try:
+            '''Implementing a delete  function that saves the task to delete in an archive'''
+            task_id = input("Enter task id of task to delete: ")
+
+            # this stores deleted task to archive for 24hrs before archive refreshes
+            save_task = """
+                            INSERT INTO task_archive (task_id, user_id, task_name, status)
+                            SELECT task_id,user_id, task_name, status
+                            FROM task_table
+                            WHERE task_id = %s;
+                        """
+            self.cur.execute(save_task, (task_id,))
+
+            #deletes task from the task_table
+            delete_task = """DELETE FROM task_table WHERE task_id = %s;"""
+            self.cur.execute(delete_task, (task_id,))
+
+            #clear archive after 24 hours
+            clear_archive = """DELETE FROM task_archive WHERE deleted_on < now() -INTERVAL '24 HOURS';"""
+            self.cur.execute(clear_archive)
+
+            print("move was success")
+            self.conn.commit()
+        except Exception as e:
+            print(f"ERROR: {e}")
+
+
+
 
     def undo_task(self):
         pass
-db_connection = DataBase()
-test_function =  TaskQueries(db_connection.conn, db_connection.cur)
 
-test_function.list_tasks('Mubaraq')
+if __name__ == "__main__":
+
+    db_connection = DataBase()
+    test_function =  TaskQueries(db_connection.conn, db_connection.cur)
+    test_function.list_tasks('Mubaraq')
+    test_function.delete_task('Mubaraq')
+
