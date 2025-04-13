@@ -35,14 +35,14 @@ class UserSystem:
             if result:
                 logged_pw = result[0]
                 print(f"welcome {user_name} ")
-                password = input("password: ").strip().capitalize()
-                if bcrypt.checkpw(password.encode(),logged_pw.encode()):
+                password = input("password: ").strip()
+                if bcrypt.checkpw(password.encode('utf-8'),logged_pw.encode('utf-8')):
                     print("Connected successfully you may begin!!!")
                     return user_name
 
                 else:
                     #user is prompted to try again if username is incorrect
-                    retry = input("password incorrect would you like to try again?(Y|N)").strip().capitalize()
+                    retry = input("password incorrect would you like to try again?(Y|N)").strip().lower()
                     if retry.lower() == "y":
                         return self.login() #restarts login
                     else:
@@ -65,8 +65,8 @@ class UserSystem:
                 #ask user for name
                 user_name = input("Choose a user name: ").strip().capitalize()
                 print("Password must be 5 characters long...")
-                user_password = str(input("Choose a password: ")).strip().capitalize()
-                confirm_password = str(input("confirm the password: ")).strip().capitalize() #prompt user to confirm password
+                user_password = str(input("Choose a password: ")).strip()
+                confirm_password = str(input("confirm the password: ")).strip() #prompt user to confirm password
                 #check if passwords are the same
                 if user_password != confirm_password: raise ValueError("Passwords do not match....try again")
                 #check if password is correct length
