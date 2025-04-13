@@ -15,7 +15,7 @@ class DataBase:
             self.cur = self.conn.cursor()
             print("Connected to database successfully")
 
-        except Exception as e:
+        except (Exception,psycopg2.Error) as e:
             print(f"Error connecting to database: {e}")
 
     def close_database(self):

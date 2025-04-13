@@ -22,8 +22,8 @@ class TaskQueries:
             result = self.cur.fetchone()
             #close if user is not found
             if not result:
-                print("user not found")
-                return
+                raise ValueError("user not found")
+                # return
             user_id = result[0]
 
             #add task info to table
