@@ -19,7 +19,7 @@ class Display:
             navigate_tool = input("Do you want to 'add' a Task, change a 'status','List' all task, or 'delete' a task?: ").strip().lower()
             if navigate_tool.lower() == 'exit': break
             if navigate_tool.lower() == 'add':
-                task_name = task_manager.task_info(user_name)
+                task_name = task_manager.task_info()
                 print(tasks.add_task(user_name,task_name))
             elif navigate_tool.lower() == 'status':
                 print(task_manager.status())
