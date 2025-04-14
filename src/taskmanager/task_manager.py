@@ -88,10 +88,19 @@ class TaskManager:
                         print('-',end ="")
                     print("closed")
                     break
-    def __delete__(self):
+
+    def del_task(self):
         """What do you wish to delete?
         """
-        pass
+        try:
+            task_id = input("Enter task id of task to delete: ")
+            if not task_id:
+                raise ValueError("Task cannot be empty")
+
+            return task_id
+        except Exception as e:
+            return f"Error {e}"
+
 
 if __name__ == "__main__":
     from Task_Manger_.src.auth.userSystem import UserSystem
@@ -103,8 +112,11 @@ if __name__ == "__main__":
     # tasks = TaskQueries()
     user = UserSystem(db_connection.conn, db_connection.cur)
     tasks = TaskQueries(db_connection.conn, db_connection.cur)
-    user_name = "Mubaraq"
+    user_name = "Tosin"
     # tasks = TaskQueries(db_connection.conn, db_connection.cur)
     task_dict = tasks.list_tasks(user_name)
     print(task_manager.list_all(task_dict))
+
+    task_manager.del_task()
+
 

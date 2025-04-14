@@ -26,6 +26,9 @@ class Display:
             elif navigate_tool.lower() == 'list':
                 task_dict = tasks.list_tasks(user_name)
                 print(task_manager.list_all(task_dict))
+            elif navigate_tool.lower() == 'delete':
+                task_id = task_manager.del_task()
+                print(tasks.delete_task(user_name,task_id))
             user_input = input("Do you want to continue?Y|N ").strip().upper()
 
         db_connection.close_database()

@@ -80,10 +80,9 @@ class TaskQueries:
         """
 
     """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
-    def delete_task(self,user_name):
+    def delete_task(self,user_name,task_id):
         try:
             '''Implementing a delete  function that saves the task to delete in an archive'''
-            task_id = input("Enter task id of task to delete: ")
 
             # this stores deleted task to archive for 24hrs before archive refreshes
             save_task = """
@@ -99,7 +98,7 @@ class TaskQueries:
             self.cur.execute(delete_task, (task_id,))
 
             #clear archive after 24 hours
-            clear_archive = """DELETE FROM task_archive WHERE deleted_on < now() -INTERVAL '24 HOURS';"""
+            clear_archive = """DELETE FROM task_archive WHERE deleted_on < now() -INTERVAL '3 HOURS';"""
             self.cur.execute(clear_archive)
 
             print("move was success")
@@ -118,5 +117,5 @@ if __name__ == "__main__":
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
     test_function.list_tasks('Mubaraq')
-    test_function.delete_task('Mubaraq')
+    test_function.delete_task('Tosin', 954)
 
