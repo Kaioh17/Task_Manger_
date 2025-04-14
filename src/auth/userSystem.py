@@ -1,4 +1,5 @@
 import random
+import re
 from operator import length_hint
 
 import bcrypt
@@ -57,20 +58,35 @@ class UserSystem:
             print("There was an error", e)
 
     def create_user(self):
+        #test  for incorrect password
+        #for length of password
+        #if confirm is working as expected
         while True:
             try:
+                def _check_password(pw):
+                    if not re.match(r'^.{5,}$',pw):  # create test case for this (i.e when user enters less than 52)
+                        raise ValueError("Password entered is to low... try again")
                 # get user id then eventually add hashing foe user id
                 user_id = random.randint(1, 9900)
 
                 #ask user for name
                 user_name = input("Choose a user name: ").strip().capitalize()
-                print("Password must be 5 characters long...")
+
+                if not re.match(r'^[A-Za-z0-9]+$', user_name):   #create test case for this
+                    raise ValueError("Password entered is to low... try again")
+
+                print("Password must be at least 5 characters long...")
                 user_password = str(input("Choose a password: ")).strip()
+                _check_password(user_password) #checks password before
+
                 confirm_password = str(input("confirm the password: ")).strip() #prompt user to confirm password
+                _check_password(confirm_password) #handle any edge case
                 #check if passwords are the same
-                if user_password != confirm_password: raise ValueError("Passwords do not match....try again")
+                if user_password != confirm_password:
+                    raise ValueError("Passwords do not match....try again")
                 #check if password is correct length
-                if len(confirm_password) < 5: raise ValueError("Password entered is to low... try again")
+
+
 
 
                 # hash password to protect password in database
