@@ -13,6 +13,7 @@ class Display:
         user = UserSystem(db_connection.conn, db_connection.cur)
         tasks = TaskQueries(db_connection.conn, db_connection.cur)
         user_name = user.login()
+        task_dict = tasks.list_tasks(user_name)
 
         user_input = "Y"
         while user_input.upper() == "Y":
@@ -22,13 +23,14 @@ class Display:
                 task_name = task_manager.task_info()
                 print(tasks.add_task(user_name,task_name))
             elif navigate_tool.lower() == 'status':
-                print(task_manager.status())
+                task_id = task_manager.status()
+                print(tasks.status(task_id))
             elif navigate_tool.lower() == 'list':
-                task_dict = tasks.list_tasks(user_name)
                 print(task_manager.list_all(task_dict))
             elif navigate_tool.lower() == 'delete':
+                print(task_manager.list_all(task_dict)) #prints the available tasks for user
                 task_id = task_manager.del_task()
-                print(tasks.delete_task(user_name,task_id))
+                print(tasks.delete_task(task_id))
             user_input = input("Do you want to continue?Y|N ").strip().upper()
 
         db_connection.close_database()

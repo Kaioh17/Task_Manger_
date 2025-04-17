@@ -1,4 +1,6 @@
 import random
+from datetime import datetime
+
 from Task_Manger_.src.db.connection import DataBase
 # from Task_Manger_.auth.userSystem import UserSystem
 
@@ -68,19 +70,66 @@ class TaskQueries:
             print(f"Error: {e}")
             return {}
 
-    """Changes status of task"""
-    def status(self,user_name):
-        """
-           use list all function to access the tasks
-           get task_id for tasks that need to be changed
-                check if task exists in the dictionary
-                    if it does:
-                        ask user for new status
-                        send to database
-        """
+    #heelper function
+    def _verify_task_id(self,task_id):
+        if not task_id:
+                raise ValueError("Cannot be empty...")
+        verify_task_id = """SELECT task_id FROM task_table WHERE task_id = %s; """
+        self.cur.execute(verify_task_id, (task_id,))
+        result = self.cur.fetchone()
+        if not result:
+            print(f"{task_id} does not exist!!!!!")
 
+    """Changes the status of a task and handles cleanup if completed over 20 mins ago."""
+    def status(self,task_id):
+        try:
+            self._verify_task_id(task_id)
+
+            # Get current status
+            self.cur.execute("""SELECT status FROM task_table WHERE task_id = %s""", (task_id,))
+            current_status = self.cur.fetchone()[0]
+
+            ## toggle between "pending" and "done"
+            new_status = "pending" if current_status == "done" else  "done"
+            ## status
+            if new_status == "done":
+                #mark tasks as completed
+                self.cur.execute("""UPDATE task_table 
+                                    SET completed_on = CURRENT_TIMESTAMP
+                                    WHERE task_id = %s;""", (task_id,))
+                self.cur.execute("""SELECT completed_on FROM task_table WHERE task_id = %s; """, (task_id,))
+
+                created_on =self.cur.fetchone()[0]
+                # print("Time: ",created_on)
+
+                # Compare current time and completed time
+                now = datetime.now().replace(tzinfo=None)
+                created_on = created_on.replace(tzinfo=None)
+                # print("Time now: ",now)
+                diff = now - created_on
+
+                if diff.total_seconds() >= 1200:
+                    self.delete_task(task_id)
+
+                # self.conn.commit()
+            else:
+                # Reset completion time when status is changed back to pending
+                self.cur.execute("""UPDATE task_table 
+                                    SET completed_on = NULL
+                                    WHERE task_id = %s;""", (task_id,))
+            #update status column
+            update_status_query = """
+                                    UPDATE task_table 
+                                    SET status = %s
+                                    WHERE task_id = %s;        
+                                    """
+
+            self.cur.execute(update_status_query, (new_status,task_id,))
+            self.conn.commit()
+        except (Exception, ValueError) as e:
+            print(f"Error: {e}")
     """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
-    def delete_task(self,user_name,task_id):
+    def delete_task(self,task_id):
         try:
             '''Implementing a delete  function that saves the task to delete in an archive'''
 
@@ -116,6 +165,7 @@ if __name__ == "__main__":
 
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
-    test_function.list_tasks('Mubaraq')
-    test_function.delete_task('Tosin', 954)
+    # test_function.list_tasks('Mubaraq')
+    test_function.list_tasks('Tosin')
+    test_function.status("3839")
 

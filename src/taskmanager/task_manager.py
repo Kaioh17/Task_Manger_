@@ -1,6 +1,7 @@
 """To do task save in dictionary"""
 import pandas as pd
 # from helper import val_task_info
+from Task_Manger_.src.db.task_queries import TaskQueries
 
 
 class TaskManager:
@@ -57,27 +58,17 @@ class TaskManager:
                 if retry.lower() != 'y':
                     break
 
-
+    # @staticmethod
     def status(self):
 
         # get task user wants to change status of
         while True:
             try:
-                task = input("Enter task: ").strip().capitalize()
-                if not task: raise IndexError("Cannot accept no value") #check if task empty
-                if task not in  self.tm_dict: raise KeyError("Task not in memory") #make sure task in dictionary
+                task_id = input("Enter taskid: ").strip()
 
-
-                status = input("--Change status (pending/done): ").strip().capitalize()
-                #makes sure user enters valid status
-                if status.lower() not in "pending""done":
-                    raise IndexError("Invalid status! User can only enter(pending/done)")
-                self.tm_dict[task] = status
-
-                """Set a condition so that when status is set to done its delete from db and cache """
-
-
-                return print(self.tm_dict)
+                return task_id
+                # task2 = TaskQueries(db_connection.conn, db_connection.cur)
+                # task2.status(task_id)
 
             except (KeyError,IndexError) as e:
                 print(f"Error: {e}")
@@ -105,7 +96,7 @@ class TaskManager:
 if __name__ == "__main__":
     from Task_Manger_.src.auth.userSystem import UserSystem
     from Task_Manger_.src.db.connection import DataBase
-    from Task_Manger_.src.db.task_queries import TaskQueries
+
 
     task_manager = TaskManager()
     db_connection = DataBase()

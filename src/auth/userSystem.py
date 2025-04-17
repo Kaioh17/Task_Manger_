@@ -131,6 +131,7 @@ class UserSystem:
                                         task_name VARCHAR(225) NOT NULL,
                                         status VARCHAR(25) NOT NULL,
                                         created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                                        completed_on TIMESTAMP, 
                                         FOREIGN KEY (user_id) REFERENCES user_table(user_id)ON DELETE CASCADE
                                         );"""
             self.cur.execute(create_table_query_2)
