@@ -9,19 +9,39 @@ class TaskQueries:
         self.conn = conn
         self.cur = cur
 
+    # helper function
+
+    def _verify_task_id(self, task_id):
+        if not task_id:
+            raise ValueError("Cannot be empty...")
+        verify_task_id = """SELECT task_id FROM task_table WHERE task_id = %s; """
+        self.cur.execute(verify_task_id, (task_id,))
+        result = self.cur.fetchone()
+        if not result:
+            print(f"{task_id} does not exist!!!!!")
+
+    def _get_user_id(self,user_name):
+        try:
+            get_user_id = """
+                            SELECT user_id FROM user_table WHERE user_name = %s
+                            """
+            self.cur.execute(get_user_id, (user_name,))
+            # stores one row from result
+            result = self.cur.fetchone()
+            return result
+        except Exception as e:
+            return f"Error: {e}"
+
+
+
+
     """Retrieves task entered and saves to database"""
     def add_task(self, user_name, task_name):
         try:
             task_id = random.randint(10, 9999)
 
-            #get user-id from username
-            get_user_id = """
-                            SELECT user_id FROM user_table WHERE user_name = %s
-                            """
-            #execute query
-            self.cur.execute(get_user_id,(user_name,))
             # stores one row from result
-            result = self.cur.fetchone()
+            result = self._get_user_id(user_name)
             #close if user is not found
             if not result:
                 raise ValueError("user not found")
@@ -29,7 +49,7 @@ class TaskQueries:
             user_id = result[0]
 
             #add task info to table
-            add_task_query = """
+            add_task_query ="""
                             INSERT INTO task_table (task_id,user_id,task_name,status)
                             VALUES (%s, %s, %s, %s);
                             """
@@ -44,7 +64,8 @@ class TaskQueries:
     def list_tasks(self,user_name):
         try:
             #query to access tasks in db
-            list_tasks_query= """ SELECT t.task_id, t.task_name,t.status  
+            list_tasks_query= """ 
+                                    SELECT t.task_id, t.task_name,t.status  
                                     FROM user_table u 
                                     JOIN task_table t 
                                     ON u.user_id = t.user_id 
@@ -61,7 +82,7 @@ class TaskQueries:
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
-                print(all_data)
+                # print("\n",all_data)
                 return all_data
 
             return {}
@@ -70,18 +91,10 @@ class TaskQueries:
             print(f"Error: {e}")
             return {}
 
-    #heelper function
-    def _verify_task_id(self,task_id):
-        if not task_id:
-                raise ValueError("Cannot be empty...")
-        verify_task_id = """SELECT task_id FROM task_table WHERE task_id = %s; """
-        self.cur.execute(verify_task_id, (task_id,))
-        result = self.cur.fetchone()
-        if not result:
-            print(f"{task_id} does not exist!!!!!")
+
 
     """Changes the status of a task and handles cleanup if completed over 20 mins ago."""
-    def status(self,task_id):
+    def toggle_task_status(self, task_id):
         try:
             self._verify_task_id(task_id)
 
@@ -132,7 +145,7 @@ class TaskQueries:
     def delete_task(self,task_id):
         try:
             '''Implementing a delete  function that saves the task to delete in an archive'''
-
+            self._verify_task_id(task_id)
             # this stores deleted task to archive for 24hrs before archive refreshes
             save_task = """
                             INSERT INTO task_archive (task_id, user_id, task_name, status)
@@ -166,6 +179,8 @@ if __name__ == "__main__":
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
     # test_function.list_tasks('Mubaraq')
-    test_function.list_tasks('Tosin')
-    test_function.status("3839")
 
+    # test_function.add_task('Tosin',"mala")
+    # test_function.toggle_task_status("3839")
+
+    test_function.list_tasks('Tosin')

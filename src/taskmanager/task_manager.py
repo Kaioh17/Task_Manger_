@@ -9,8 +9,8 @@ class TaskManager:
 
         # self.tm_dict = {}
         self.db_tasks  = []
-
-    def task_info(self):
+    @staticmethod
+    def task_info():
         """User adds task to memory """
         while True:
             try:
@@ -35,6 +35,8 @@ class TaskManager:
                         print("-", end = "")
                     print("Exited:(")
                     break
+
+    # @staticmethod
     def list_all(self, task_dict):
         """display all task for current user in the database as a table"""
         while True:
@@ -58,8 +60,8 @@ class TaskManager:
                 if retry.lower() != 'y':
                     break
 
-    # @staticmethod
-    def status(self):
+    @staticmethod
+    def status():
 
         # get task user wants to change status of
         while True:
@@ -79,14 +81,15 @@ class TaskManager:
                         print('-',end ="")
                     print("closed")
                     break
-
-    def del_task(self):
+    @staticmethod
+    def del_task():
         """What do you wish to delete?
         """
         try:
             task_id = input("Enter task id of task to delete: ")
             if not task_id:
                 raise ValueError("Task cannot be empty")
+
 
             return task_id
         except Exception as e:

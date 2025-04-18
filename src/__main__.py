@@ -13,24 +13,33 @@ class Display:
         user = UserSystem(db_connection.conn, db_connection.cur)
         tasks = TaskQueries(db_connection.conn, db_connection.cur)
         user_name = user.login()
-        task_dict = tasks.list_tasks(user_name)
 
         user_input = "Y"
         while user_input.upper() == "Y":
+            task_dict = tasks.list_tasks(user_name)
+
             navigate_tool = input("Do you want to 'add' a Task, change a 'status','List' all task, or 'delete' a task?: ").strip().lower()
-            if navigate_tool.lower() == 'exit': break
-            if navigate_tool.lower() == 'add':
+
+            if navigate_tool == 'exit': break
+            if navigate_tool == 'add':
                 task_name = task_manager.task_info()
                 print(tasks.add_task(user_name,task_name))
-            elif navigate_tool.lower() == 'status':
+            elif navigate_tool == 'status':
                 task_id = task_manager.status()
-                print(tasks.status(task_id))
-            elif navigate_tool.lower() == 'list':
+                print(tasks.toggle_task_status(task_id))
+            elif navigate_tool== 'list':
                 print(task_manager.list_all(task_dict))
-            elif navigate_tool.lower() == 'delete':
-                print(task_manager.list_all(task_dict)) #prints the available tasks for user
-                task_id = task_manager.del_task()
-                print(tasks.delete_task(task_id))
+            elif navigate_tool == 'delete':
+                print(task_manager.list_all(task_dict)) #prints the available tasks for user to delete
+
+                while True:
+                    task_id = task_manager.del_task()
+                    tasks.delete_task(task_id)
+
+                    delete_more = input("Do you want to delete another task?(Y|N): ").upper().strip()
+
+                    if delete_more != "Y":
+                        break
             user_input = input("Do you want to continue?Y|N ").strip().upper()
 
         db_connection.close_database()
