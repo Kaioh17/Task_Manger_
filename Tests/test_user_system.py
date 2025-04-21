@@ -15,29 +15,63 @@ def db():
 
 def test_login(monkeypatch,db):
     #convert password to hash
-    raw_pw = '1233'
+    raw_pw = '12333'
     hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
     hashed_pw_str= hashed_pw.decode('utf-8')
     #insert user to the table for testing
     db.cur.execute(
         "INSERT INTO user_table (user_name,user_password) VALUES (%s , %s);" ,
-                   ('Mubaraq', hashed_pw_str)
+                   ('John', hashed_pw_str)
         )
     db.conn.commit()
 
     # simulate login
-    inputs = iter(["y","Mubaraq", "1233"])
+    inputs = iter(["y","John", "12333"])
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     # run the login and check the returned user_name
     system = UserSystem(db.conn, db.cur)
     result =  system.login()
 
-    assert result == 'Mubaraq'
+    assert result == 'John'
 
-def test_login_user_not_found(db):
-    #plan to work on
-    raise NotImplemented
+def test_login_user_not_found_retry_success(monkeypatch,db):
+    raw_pw = '12345'
+    hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
+    hashed_pw_str = hashed_pw.decode('utf_8')
+    #insert user to the table for testing
+    db.cur.execute("INSERT INTO user_table (user_name,user_password) VALUES (%s , %s);", ('John', hashed_pw_str))
+    db.conn.commit()
+
+    #Simulate login
+    inputs = iter(["Y", "Jane", "R"]) #input incorrect name
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    inputs = iter(["Y","John","12345"]) #input correct password
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    system = UserSystem(db.conn, db.cur)
+    result = system.login()
+    assert result == "John"
+
+
+def test_login_user_not_found_create_user(monkeypatch, db):
+    raw_pw = '12345'
+    hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
+    hashed_pw_str = hashed_pw.decode('utf-8')
+
+    # insert user to the table for testing
+    db.cur.execute("INSERT INTO user_table (user_name,user_password) VALUES (%s , %s);", ('John', hashed_pw_str))
+    db.conn.commit()
+
+    #simulate login
+    inputs = iter(["Y", "Jane", "N","Jane", "12345", "12345"])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    system = UserSystem(db.conn, db.cur)
+    result = system.login()
+
+    assert result == "Jane"
 def test_login_wrong_password_then_exit(db):
     raise NotImplemented
 def test_login_wrong_password_then_retry_success(monkeypatch,db):

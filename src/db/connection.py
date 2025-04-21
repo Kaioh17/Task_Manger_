@@ -5,12 +5,12 @@ class DataBase:
         try:
 
             self.conn = psycopg2.connect(
-                user="postgres",
-                password="1308",
-                database="to_do_list",
-                port="5432",
-                host="localhost",
-            )
+                        user="postgres",
+                        password="1308",
+                        database="task_manager",
+                        port="5432",
+                        host="localhost",
+                        )
             # cursor to perform database operations
             self.cur = self.conn.cursor()
             print("Connected to database successfully")

@@ -3,7 +3,7 @@ import re
 from operator import length_hint
 
 import bcrypt
-from Task_Manger_.src.db.connection import DataBase
+
 
 
 """Handles User login"""
@@ -11,8 +11,7 @@ class UserSystem:
     def __init__(self,conn, cur):
         self.conn = conn
         self.cur = cur
-        """Fixes due:
-                check if password is up to 4"""
+
     def login(self):
 
         try:
@@ -51,8 +50,13 @@ class UserSystem:
 
 
             else:
-                print("user not found. Please create an account.")
-                return self.create_user()
+                retry = input("user not found. Would you like to create an account(N) or retry(R).").strip().upper()
+                if retry == "R":
+                    return  self.login()
+                elif retry == "N":
+                    return self.create_user()
+                else:
+                    return
 
         except Exception as e:
             print("There was an error", e)
@@ -154,6 +158,7 @@ class UserSystem:
 
 
 if __name__ == "__main__":
+    from Task_Manger_.src.db.connection import DataBase
     db_connection = DataBase()
     user = UserSystem(db_connection.conn, db_connection.cur)
     # user.login()
