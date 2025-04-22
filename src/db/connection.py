@@ -1,15 +1,26 @@
 import psycopg2
+import os
+from dotenv import load_dotenv
+
 
 class DataBase:
     def __init__(self):
         try:
+            load_dotenv()
+
+            _user = os.getenv("DB_user")
+            _db_name = os.getenv("DB_name")
+            _password = os.getenv("DB_password")
+            _port = os.getenv("DB_port")
+            _host = os.getenv("DB_host")
+
 
             self.conn = psycopg2.connect(
-                        user="postgres",
-                        password="1308",
-                        database="task_manager",
-                        port="5432",
-                        host="localhost",
+                        user=_user,
+                        password=_password,
+                        database=_db_name,
+                        port=_port,
+                        host=_host,
                         )
             # cursor to perform database operations
             self.cur = self.conn.cursor()
@@ -23,3 +34,4 @@ class DataBase:
         self.cur.close()
         self.conn.close()
         print("Connection Closed!!")
+
