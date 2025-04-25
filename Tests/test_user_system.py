@@ -1,3 +1,5 @@
+from os import system
+
 import pytest
 from Task_Manger_.src.db.connection_test import TestDB
 from Task_Manger_.src.auth.userSystem import UserSystem
@@ -35,6 +37,7 @@ def test_login(monkeypatch,db):
 
     assert result == 'John'
 
+
 def test_login_user_not_found_retry_success(monkeypatch,db):
     raw_pw = '12345'
     hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
@@ -53,8 +56,6 @@ def test_login_user_not_found_retry_success(monkeypatch,db):
     system = UserSystem(db.conn, db.cur)
     result = system.login()
     assert result == "John"
-
-
 def test_login_user_not_found_create_user(monkeypatch, db):
     raw_pw = '12345'
     hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
@@ -72,44 +73,127 @@ def test_login_user_not_found_create_user(monkeypatch, db):
     result = system.login()
 
     assert result == "Jane"
-def test_login_wrong_password_then_exit(db):
-    raise NotImplemented
+
+
+
+def test_login_wrong_password_then_exit(monkeypatch,db):
+    raw_pw = '12345'
+    hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
+    hashed_pw_str = hashed_pw.decode('utf-8')
+
+    #insert user table
+    db.cur.execute(
+        "INSERT INTO user_table (user_name, user_password) VALUES (%s , %s);",
+        ('John', hashed_pw_str))
+    db.conn.commit()
+
+    # simulate inputs
+    inputs = iter(["y", "John", "11234", "N"])
+    monkeypatch.setattr("builtins.input",lambda _: next(inputs))
+
+    system = UserSystem(db.conn, db.cur)
+
+
+    with pytest.raises(SystemExit): # checks if  this input has a
+        system.login()
 def test_login_wrong_password_then_retry_success(monkeypatch,db):
     # convert password to hash
-    raw_pw = '1233'
+    raw_pw = '12335'
     hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
     hashed_pw_str = hashed_pw.decode('utf-8')
     # insert user to the table for testing
     db.cur.execute(
         "INSERT INTO user_table (user_name,user_password) VALUES (%s , %s);",
-        ('Mubaraq', hashed_pw_str)
+        ('John', hashed_pw_str)
     )
     db.conn.commit()
 
     # simulate login
-    inputs = iter(["y", "Mubaraq", "2324","y"])  #wrong password
+    inputs = iter(["y", "John", "23254","y"])  #wrong password
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
-    inputs = iter(["y", "Mubaraq", "1233", "y"])  # correct password
+    inputs = iter(["y", "John", "12335", "y"])  # correct password
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     # run the login and check the returned user_name
     system = UserSystem(db.conn, db.cur)
     result = system.login()
 
-    assert result == 'Mubaraq'
-def test_login_no_account_redirect(db):
-    #enter "n"
-    #should trigger create_user()
-    raise NotImplemented
+    assert result == 'John'
 
-"""Test create password"""
-def test_create_user_success(db):
-    raise NotImplemented
-def test_create_user_passwords_do_not_match(db):
-    raise NotImplemented
-def test_create_user_password_too_short(db):
-    raise NotImplemented
+def test_login_wrong_password_retry_limit(monkeypatch, db):
+    # convert password to hash
+    raw_pw = '12335'
+    hashed_pw = bcrypt.hashpw(raw_pw.encode('utf-8'), bcrypt.gensalt())
+    hashed_pw_str = hashed_pw.decode('utf-8')
+    # insert user to the table for testing
+    db.cur.execute(
+        "INSERT INTO user_table (user_name,user_password) VALUES (%s , %s);",
+        ('John', hashed_pw_str)
+    )
+    db.conn.commit()
+
+    #simulate login
+    inputs = iter(['y','John','1233','y'])
+    monkeypatch.setattr('builtins.inputs', lambda _:next(inputs))
+
+    #start function
+    login = UserSystem(db.conn,db.cur)
+
+    with pytest.raises(SystemExit):
+        login.login()
+
+
+"""Test create user"""
+def test_create_user_success(monkeypatch,db):
+
+    #simulate user inputs
+    inputs = iter(['John', '12345', '12345'])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    #call function
+    create = UserSystem(db.conn, db.cur)
+    result = create.create_user()
+
+    assert result == 'John'
+def test_create_user_passwords_do_not_match(monkeypatch, db):
+    #simulate input
+
+    inputs = iter(['John', '12345', '12343'])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    inputs = iter(['John', '12345', '12345'])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    #call function
+    create = UserSystem(db.conn,db.cur)
+    result =  create.create_user()
+
+    assert result == 'John'
+
+def test_create_user_password_too_short(monkeypatch, db):
+    inputs = iter(['John', '1234', '1234'])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    inputs = iter(['John', '12345', '12345'])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    # call function
+    create = UserSystem(db.conn, db.cur)
+    result = create.create_user()
+
+    assert result == 'John'
+
+def test_create_user_password_retries_limit(monkeypatch,db):
+
+
+    inputs = iter(['John', '1234','John', '1344' ])
+    monkeypatch.setattr("builtins.input", lambda _: next(inputs))
+
+    create = UserSystem(db.conn, db.cur)
+    with pytest.raises(SystemExit):
+        create.create_user()
+
 
 
 

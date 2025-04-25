@@ -1,72 +1,96 @@
 import random
 import re
+import sys
 from operator import length_hint
+
+from psycopg2.errorcodes import INVALID_PASSWORD
+
+from Task_Manger_.src.db.connection import DataBase
 
 import bcrypt
 
 
 
 """Handles User login"""
+
+#helper function
+def _shutdown(message):
+    # self.conn.close()
+    # self.cur.close()
+    sys.exit(message)
+
+
 class UserSystem:
     def __init__(self,conn, cur):
         self.conn = conn
         self.cur = cur
 
+
     def login(self):
+        retry_count = 0
+        while retry_count < 3:
+            try:
+                retry_count += 1
+                #ask user to login or signup
+                request_login = input("Do you have an account(Y|N): ").strip().lower()
 
-        try:
-            #ask user to login or signup
-            request_login = input("Do you have an account(Y|N): ").strip().lower()
+                if request_login.lower() != "y":
+                   return self.create_user()
 
-            if request_login.lower() != "y":
-               return self.create_user()
+                user_name = input("User name: ").strip().capitalize()
 
-            user_name = input("User name: ").strip().capitalize()
+                #check if user exists
+                check_username = """
+                                SELECT user_password FROM user_table WHERE user_name = %s;
+                                """
 
-            #check if user exists
-            check_username = """
-                            SELECT user_password FROM user_table WHERE user_name = %s;
-                            """
+                #execute query
+                self.cur.execute(check_username, (user_name,))
+                # stores one row from result
+                result = self.cur.fetchone() #stores what password in tuple
+                if result:
+                    logged_pw = result[0]
+                    print(f"welcome {user_name} ")
+                    password = input("password: ").strip()
+                    if bcrypt.checkpw(password.encode('utf-8'),logged_pw.encode('utf-8')):
+                        print("Connected successfully you may begin!!!")
+                        return user_name
 
-            #execute query
-            self.cur.execute(check_username, (user_name,))
-            # stores one row from result
-            result = self.cur.fetchone() #stores what password in tuple
-            if result:
-                logged_pw = result[0]
-                print(f"welcome {user_name} ")
-                password = input("password: ").strip()
-                if bcrypt.checkpw(password.encode('utf-8'),logged_pw.encode('utf-8')):
-                    print("Connected successfully you may begin!!!")
-                    return user_name
-
-                else:
-                    #user is prompted to try again if username is incorrect
-                    retry = input("password incorrect would you like to try again?(Y|N)").strip().lower()
-                    if retry.lower() == "y":
-                        return self.login() #restarts login
                     else:
-                        return #exit
+                        #user is prompted to try again if username is incorrect
+                        retry = input("password incorrect would you like to try again?(Y|N)").strip().lower()
+
+                        if retry.lower() == "y":
+                        # password = input("Password: ").strip()
+                            return self.login()   # restarts login
+                        else:
+                            return _shutdown("Exiting program...")#exit
 
 
-            else:
-                retry = input("user not found. Would you like to create an account(N) or retry(R).").strip().upper()
-                if retry == "R":
-                    return  self.login()
-                elif retry == "N":
-                    return self.create_user()
+
                 else:
-                    return
+                    while True:
+                        retry = input("user not found. Would you like to create an account(New) or retry(R).").strip()
+                        if retry.lower() != ('r','n'):
+                            break
+                        if retry.lower() == "r":
+                            raise ValueError("Retry...")
+                        elif retry.lower() == "n" or "new":
+                            return self.create_user()
+                        else:
+                            return _shutdown("Exiting program...")
 
-        except Exception as e:
-            print("There was an error", e)
+            except Exception as e:
+                print("There was an error", e)
+
+        return _shutdown("Retry limit reached...")
 
     def create_user(self):
-        #test  for incorrect password
-        #for length of password
-        #if confirm is working as expected
-        while True:
+        retry_count = 0
+        while retry_count  < 4:
             try:
+                retry_count += 1
+                #helper function
                 def _check_password(pw):
                     if not re.match(r'^.{5,}$',pw):  # create test case for this (i.e when user enters less than 52)
                         raise ValueError("Password entered is to low... try again")
@@ -90,9 +114,6 @@ class UserSystem:
                     raise ValueError("Passwords do not match....try again")
                 #check if password is correct length
 
-
-
-
                 # hash password to protect password in database
                 hashed_pw = bcrypt.hashpw(confirm_password.encode('utf-8'), bcrypt.gensalt())#protect password in database
                 hashed_pw_str = hashed_pw.decode('utf-8')
@@ -114,6 +135,8 @@ class UserSystem:
 
             except Exception as e:
                 print(f"ERROR: {e}")
+
+        return _shutdown("retry limit reached....")
 
 
         # function to create tables
@@ -158,7 +181,7 @@ class UserSystem:
 
 
 if __name__ == "__main__":
-    from Task_Manger_.src.db.connection import DataBase
+
     db_connection = DataBase()
     user = UserSystem(db_connection.conn, db_connection.cur)
     # user.login()
