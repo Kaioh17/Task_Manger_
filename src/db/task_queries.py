@@ -187,12 +187,11 @@ class TaskQueries:
     def del_user(self, user_id):
         try:
             self._verify_user_id(user_id)
-            print("verified user id")
 
             self.cur.execute("DELETE FROM user_table WHERE user_id = %s ", (user_id,))
-            print("executing...")
+
             self.conn.commit()
-            print("commit")
+
 
             return user_id
 
