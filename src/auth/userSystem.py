@@ -86,57 +86,55 @@ class UserSystem:
         return _shutdown("Retry limit reached...")
 
     def create_user(self):
-        retry_count = 0
-        while retry_count  < 4:
-            try:
-                retry_count += 1
-                #helper function
-                def _check_password(pw):
-                    if not re.match(r'^.{5,}$',pw):  # create test case for this (i.e when user enters less than 52)
-                        raise ValueError("Password entered is to low... try again")
-                # get user id then eventually add hashing foe user id
-                user_id = random.randint(1, 9900)
 
-                #ask user for name
-                user_name = input("Choose a user name: ").strip().capitalize()
+        try:
 
-                if not re.match(r'^[A-Za-z0-9]+$', user_name):   #create test case for this
+            #helper function
+            def _check_password(pw):
+                if not re.match(r'^.{5,}$',pw):  # create test case for this (i.e when user enters less than 52)
                     raise ValueError("Password entered is to low... try again")
+            # get user id then eventually add hashing foe user id
+            user_id = random.randint(1, 9900)
 
-                print("Password must be at least 5 characters long...")
-                user_password = str(input("Choose a password: ")).strip()
-                _check_password(user_password) #checks password before
+            #ask user for name
+            user_name = input("Choose a user name: ").strip().capitalize()
 
-                confirm_password = str(input("confirm the password: ")).strip() #prompt user to confirm password
-                _check_password(confirm_password) #handle any edge case
-                #check if passwords are the same
-                if user_password != confirm_password:
-                    raise ValueError("Passwords do not match....try again")
-                #check if password is correct length
+            if not re.match(r'^[A-Za-z0-9]+$', user_name):   #create test case for this
+                raise ValueError("Password entered is to low... try again")
 
-                # hash password to protect password in database
-                hashed_pw = bcrypt.hashpw(confirm_password.encode('utf-8'), bcrypt.gensalt())#protect password in database
-                hashed_pw_str = hashed_pw.decode('utf-8')
-                # print(hashed_pw)
+            print("Password must be at least 5 characters long...")
+            user_password = str(input("Choose a password: ")).strip()
+            _check_password(user_password) #checks password before
 
-                #create user sql query
+            confirm_password = str(input("confirm the password: ")).strip() #prompt user to confirm password
+            _check_password(confirm_password) #handle any edge case
+            #check if passwords are the same
+            if user_password != confirm_password:
+                raise ValueError("Passwords do not match....try again")
+            #check if password is correct length
 
-                create_user_query = """
-                                    INSERT INTO user_table (user_id, user_name, user_password) VALUES (%s, %s, %s);
-                                    """
-                #execute query
-                self.cur.execute(create_user_query, (user_id,user_name,hashed_pw_str))
+            # hash password to protect password in database
+            hashed_pw = bcrypt.hashpw(confirm_password.encode('utf-8'), bcrypt.gensalt())#protect password in database
+            hashed_pw_str = hashed_pw.decode('utf-8')
+            # print(hashed_pw)
 
-                #commit transaction
-                self.conn.commit()
+            #create user sql query
 
-                print(f"{user_name} successfully created as {user_id}")
-                return user_name
+            create_user_query = """
+                                INSERT INTO user_table (user_id, user_name, user_password) VALUES (%s, %s, %s);
+                                """
+            #execute query
+            self.cur.execute(create_user_query, (user_id,user_name,hashed_pw_str))
 
-            except Exception as e:
-                print(f"ERROR: {e}")
+            #commit transaction
+            self.conn.commit()
 
-        return _shutdown("retry limit reached....")
+            print(f"{user_name} successfully created as {user_id}")
+            return user_name
+
+        except Exception as e:
+            return f"ERROR: {e}"
+
 
 
         # function to create tables
