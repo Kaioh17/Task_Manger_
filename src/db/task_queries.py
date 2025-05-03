@@ -17,9 +17,23 @@ class TaskQueries:
         verify_task_id = """SELECT task_id FROM task_table WHERE task_id = %s; """
         self.cur.execute(verify_task_id, (task_id,))
         result = self.cur.fetchone()
+
         if not result:
             print(f"{task_id} does not exist!!!!!")
 
+        return result
+    #helper: validates user_id
+    def _verify_user_id(self, user_id):
+        if not user_id:
+            raise ValueError("Cannot be empty.....")
+        verify_user_id = """SELECT user FROM task_table WHERE user_id = %s; """
+        self.cur.execute(verify_user_id, (user_id,))
+        result = self.cur.fetchone()
+
+        if not result:
+            print(f"{user_id} does not exist!!!!!")
+
+        return result
     def _get_user_id(self,user_name):
         try:
             get_user_id = """
@@ -58,8 +72,10 @@ class TaskQueries:
             #commit to database
             self.conn.commit()
 
+            return task_id
+
         except Exception as e:
-            print(f"Error adding task to table {e}")
+            return  f"Error adding task to table {e}"
 
     def list_tasks(self,user_name):
         try:
@@ -96,7 +112,7 @@ class TaskQueries:
     """Changes the status of a task and handles cleanup if completed over 20 mins ago."""
     def toggle_task_status(self, task_id):
         try:
-            self._verify_task_id(task_id)
+            task_id = self._verify_task_id(task_id)
 
             # Get current status
             self.cur.execute("""SELECT status FROM task_table WHERE task_id = %s""", (task_id,))
@@ -168,6 +184,21 @@ class TaskQueries:
         except Exception as e:
             print(f"ERROR: {e}")
 
+    def del_user(self, user_id):
+        try:
+            self._verify_user_id(user_id)
+            print("verified user id")
+
+            self.cur.execute("DELETE FROM user_table WHERE user_id = %s ", (user_id,))
+            print("executing...")
+            self.conn.commit()
+            print("commit")
+
+            return user_id
+
+        except Exception as e:
+            return f"Error: {e}"
+
 
 
 
@@ -183,4 +214,4 @@ if __name__ == "__main__":
     # test_function.add_task('Tosin',"mala")
     # test_function.toggle_task_status("3839")
 
-    test_function.list_tasks('Tosin')
+    test_function.del_user('3987')
