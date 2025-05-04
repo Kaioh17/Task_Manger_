@@ -80,7 +80,8 @@ class TaskManager:
                     for _ in range(50):
                         print('-',end ="")
                     print("closed")
-                    break
+                    return
+
     @staticmethod
     def del_task():
         """What do you wish to delete?
