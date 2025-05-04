@@ -10,7 +10,6 @@ class TaskQueries:
         self.cur = cur
 
     # helper function
-
     def _verify_task_id(self, task_id):
         if not task_id:
             raise ValueError("Cannot be empty...")
@@ -45,8 +44,6 @@ class TaskQueries:
             return result
         except Exception as e:
             return f"Error: {e}"
-
-
 
 
     """Retrieves task entered and saves to database"""
@@ -98,7 +95,7 @@ class TaskQueries:
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
-                # print("\n",all_data)
+                print(all_data)
                 return all_data
 
             return {}
@@ -128,17 +125,13 @@ class TaskQueries:
                                     WHERE task_id = %s;""", (task_id,))
                 self.cur.execute("""SELECT completed_on FROM task_table WHERE task_id = %s; """, (task_id,))
 
-                created_on =self.cur.fetchone()[0]
+                completed_on =self.cur.fetchone()[0]
                 # print("Time: ",created_on)
 
-                # Compare current time and completed time
-                now = datetime.now().replace(tzinfo=None)
-                created_on = created_on.replace(tzinfo=None)
-                # print("Time now: ",now)
-                diff = now - created_on
+                # i will be using fast api for this
 
-                if diff.total_seconds() >= 1200:
-                    self.delete_task(task_id)
+
+
 
                 # self.conn.commit()
             else:
@@ -155,8 +148,10 @@ class TaskQueries:
 
             self.cur.execute(update_status_query, (new_status,task_id,))
             self.conn.commit()
+
+            return new_status
         except (Exception, ValueError) as e:
-            print(f"Error: {e}")
+            return f"Error: {e}"
     """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
     def delete_task(self,task_id):
         try:
@@ -178,11 +173,12 @@ class TaskQueries:
             #clear archive after 24 hours
             clear_archive = """DELETE FROM task_archive WHERE deleted_on < now() -INTERVAL '3 HOURS';"""
             self.cur.execute(clear_archive)
-
-            print("move was success")
             self.conn.commit()
+
+            return "Move was a success"
+
         except Exception as e:
-            print(f"ERROR: {e}")
+          return f"ERROR: {e}"
 
     def del_user(self, user_id):
         try:
@@ -202,15 +198,18 @@ class TaskQueries:
 
 
     def undo_task(self):
+
         pass
 
 if __name__ == "__main__":
 
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
-    # test_function.list_tasks('Mubaraq')
+    test_function.list_tasks('Tosin')
+    test_function.toggle_task_status(3082)
+
 
     # test_function.add_task('Tosin',"mala")
     # test_function.toggle_task_status("3839")
 
-    test_function.del_user('3987')
+    # test_function.del_user('3987')
