@@ -71,6 +71,10 @@ def test_toggle_task_status(monkeypatch,db):
 
     assert status == "done"
 
+def test_toggle_twice(monkeypatch, db):
+        pass
+
+
 def test_delete_task(monkeypatch,db):
     _create_test_user(1234,"John", db)
 
@@ -85,6 +89,9 @@ def test_delete_task(monkeypatch,db):
 
 
     assert peek is None, "Expected no rows, but got data"
+
+def test_delete_task_twice(monkeypatch,db):
+        pass
 
 def test_delete_user(monkeypatch,db):
 
@@ -104,3 +111,8 @@ def test_delete_user(monkeypatch,db):
 
 
 
+def test_list_empty_tasks(monkeypatch,db):
+    pass
+
+def test_toggle_invalid_id(monkeypatch, db):
+    pass
