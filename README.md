@@ -25,7 +25,7 @@ and prep the project for future improvements like testing, APIs, and possibly a 
 - psycopg2
 - postgreSQL
 - dotenv(planned for environment management)
-- pytest(planned for testing)
+- pytest
 
 ---
 ## File Structure
