@@ -1,6 +1,8 @@
 import random
 from datetime import datetime
 
+from anyio import sleep_forever
+
 from Task_Manger_.src.db.connection import DataBase
 # from Task_Manger_.auth.userSystem import UserSystem
 
@@ -47,7 +49,7 @@ class TaskQueries:
 
 
     """Retrieves task entered and saves to database"""
-    def add_task(self, user_name, task_name):
+    def add_task(self, user_name: str, task_name: str, description = "None"):
         try:
             task_id = random.randint(10, 9999)
 
@@ -64,15 +66,35 @@ class TaskQueries:
                             INSERT INTO task_table (task_id,user_id,task_name,status)
                             VALUES (%s, %s, %s, %s);
                             """
+
+
+            # print(description)
             #execute
             self.cur.execute(add_task_query,(task_id, user_id,task_name,"pending"))
             #commit to database
             self.conn.commit()
 
+            self._description(task_id, description)  ##contains query to set the description if needed
+
             return task_id
 
         except Exception as e:
             return  f"Error adding task to table {e}"
+
+    def _description(self, task_id, description):
+        #helper function to describe the tasks
+        try:
+            set_description = '''UPDATE task_table SET description = %s WHERE task_id = %s;'''
+            self.cur.execute(set_description, (description, task_id))
+            self.conn.commit()
+
+
+            return description
+        except Exception as e:
+            return f"error: {e}"
+
+
+
 
     def list_tasks(self,user_name):
         try:
@@ -197,19 +219,28 @@ class TaskQueries:
 
 
 
-    def undo_task(self):
-
-        pass
+    # def undo_task(self, user_nmae):
+    #     try:
+    #         #undo task
+    #         # retrieves last deleted task from the task archive
+    #         # base on user_id matched from login
+    #         return
+    #
+    #     except Exception as e:
+    #         return f"Error: {e}"
+    #
+    #     pass
 
 if __name__ == "__main__":
 
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
-    test_function.list_tasks('Tosin')
-    test_function.toggle_task_status(3082)
+    # test_function.list_tasks('Tosin')
+    # test_function.toggle_task_status(3082)
 
 
-    # test_function.add_task('Tosin',"mala")
+    # test_function.add_task('Tosin',"Set the plane","Check engines" )
+    # test_function._description("5503","Get new trucks on the way" )
     # test_function.toggle_task_status("3839")
 
     # test_function.del_user('3987')

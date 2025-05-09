@@ -154,12 +154,14 @@ class UserSystem:
                                         task_id SERIAL PRIMARY KEY,
                                         user_id INT NOT NULL, 
                                         task_name VARCHAR(225) NOT NULL,
+                                        description VARCHAR(225),
                                         status VARCHAR(25) NOT NULL,
                                         created_on TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                                         completed_on TIMESTAMP, 
                                         FOREIGN KEY (user_id) REFERENCES user_table(user_id)ON DELETE CASCADE
                                         );"""
             self.cur.execute(create_table_query_2)
+            #create task archive
             create_table_query_3 = """CREATE TABLE IF NOT EXISTS task_archive(
                                            archive_id SERIAL PRIMARY KEY,
                                            task_id INT NOT NULL,
