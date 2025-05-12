@@ -1,5 +1,7 @@
 """To do task save in dictionary"""
 import pandas as pd
+from scripts.regsetup import description
+
 # from helper import val_task_info
 from Task_Manger_.src.db.task_queries import TaskQueries
 
@@ -20,6 +22,7 @@ class TaskManager:
                 if not task:
                     raise ValueError("Task cannot be empty!!")
 
+
                 """Ask if user wants to enter in more task"""
 
                 print(f"{task} successfully added")
@@ -33,10 +36,14 @@ class TaskManager:
                 if retry.lower()!= "y":
                     for _ in range(50):
                         print("-", end = "")
-                    print("Exited:(")
-                    break
+                    return "Exited:("
 
-    # @staticmethod
+
+    def add_description(self):
+        task_description = str(input("Do you have a description:"))
+        return task_description
+        # @staticmethod
+
     def list_all(self, task_dict):
         """display all task for current user in the database as a table"""
         while True:
