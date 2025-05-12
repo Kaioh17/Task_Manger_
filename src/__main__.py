@@ -23,7 +23,8 @@ class Display:
             if navigate_tool == 'exit': break
             if navigate_tool == 'add':
                 task_name = task_manager.task_info()
-                print(tasks.add_task(user_name,task_name))
+                description = task_manager.add_description()
+                print(tasks.add_task(user_name,task_name, description))
             elif navigate_tool == 'status':
                 task_id = task_manager.status()
                 print(tasks.toggle_task_status(task_id))
