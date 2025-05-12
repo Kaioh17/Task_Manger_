@@ -1,7 +1,7 @@
-from Task_Manger_.src.auth.userSystem import UserSystem
-from Task_Manger_.src.db.connection import DataBase
-from Task_Manger_.src.db.task_queries import TaskQueries
-from Task_Manger_.src.taskmanager.task_manager import TaskManager
+from Task_Manager_.src.auth.userSystem import UserSystem
+from Task_Manager_.src.db.connection import DataBase
+from Task_Manager_.src.db.task_queries import TaskQueries
+from Task_Manager_.src.taskmanager.task_manager import TaskManager
 
 
 class Display:

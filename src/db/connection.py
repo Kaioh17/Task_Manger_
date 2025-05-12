@@ -3,6 +3,8 @@ import os
 from dotenv import load_dotenv
 
 
+####using pool to for easier connection
+
 class DataBase:
     def __init__(self):
         try:

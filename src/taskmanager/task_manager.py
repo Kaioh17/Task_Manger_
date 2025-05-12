@@ -3,7 +3,7 @@ import pandas as pd
 from scripts.regsetup import description
 
 # from helper import val_task_info
-from Task_Manger_.src.db.task_queries import TaskQueries
+from Task_Manager_.src.db.task_queries import TaskQueries
 
 
 class TaskManager:
@@ -105,8 +105,8 @@ class TaskManager:
 
 
 if __name__ == "__main__":
-    from Task_Manger_.src.auth.userSystem import UserSystem
-    from Task_Manger_.src.db.connection import DataBase
+    from Task_Manager_.src.auth.userSystem import UserSystem
+    from Task_Manager_.src.db.connection import DataBase
 
 
     task_manager = TaskManager()

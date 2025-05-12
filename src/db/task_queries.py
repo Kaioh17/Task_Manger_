@@ -3,8 +3,8 @@ from datetime import datetime
 
 from anyio import sleep_forever
 
-from Task_Manger_.src.db.connection import DataBase
-# from Task_Manger_.auth.userSystem import UserSystem
+from Task_Manager_.src.db.connection import DataBase
+# from Task_Manager_.auth.userSystem import UserSystem
 
 class TaskQueries:
     def __init__(self,conn, cur):
@@ -20,7 +20,7 @@ class TaskQueries:
         result = self.cur.fetchone()
 
         if not result:
-            print(f"{task_id} does not exist!!!!!")
+             raise ValueError(f"{task_id} does not exist!!!!!")
 
         return result
     #helper: validates user_id
@@ -32,7 +32,7 @@ class TaskQueries:
         result = self.cur.fetchone()
 
         if not result:
-            print(f"{user_id} does not exist!!!!!")
+            raise ValueError(f"{user_id} does not exist!!!!!")
 
         return result
     def _get_user_id(self,user_name):
@@ -67,9 +67,7 @@ class TaskQueries:
                             VALUES (%s, %s, %s, %s);
                             """
 
-
-            # print(description)
-            #execute
+           #execute
             self.cur.execute(add_task_query,(task_id, user_id,task_name,"pending"))
             #commit to database
             self.conn.commit()
@@ -112,26 +110,27 @@ class TaskQueries:
             # get the values retrieved in database
             result = self.cur.fetchall()  # stores content retrieved
             if result:
-                # print(result)
+
                 all_data = {}
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
+
                 print(all_data)
                 return all_data
 
             return {}
 
         except Exception as e:
-            print(f"Error: {e}")
-            return {}
+            return f"Error: {e}"
+
 
 
 
     """Changes the status of a task and handles cleanup if completed over 20 mins ago."""
     def toggle_task_status(self, task_id):
         try:
-            task_id = self._verify_task_id(task_id)
+            task_id = self._verify_task_id(task_id)[0]
 
             # Get current status
             self.cur.execute("""SELECT status FROM task_table WHERE task_id = %s""", (task_id,))
@@ -148,9 +147,10 @@ class TaskQueries:
                 self.cur.execute("""SELECT completed_on FROM task_table WHERE task_id = %s; """, (task_id,))
 
                 completed_on =self.cur.fetchone()[0]
-                # print("Time: ",created_on)
+
 
                 # i will be using fast api for this
+                # to set a timer to move a task to the archives after being created
 
 
 
@@ -235,7 +235,7 @@ if __name__ == "__main__":
 
     db_connection = DataBase()
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
-    # test_function.list_tasks('Tosin')
+    test_function.list_tasks('Tosin')
     # test_function.toggle_task_status(3082)
 
 

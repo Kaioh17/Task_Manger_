@@ -1,6 +1,6 @@
 import pytest
-from Task_Manger_.src.db.connection_test import TestDB
-from Task_Manger_.src.db.task_queries import TaskQueries
+from Task_Manager_.src.db.connection_test import TestDB
+from Task_Manager_.src.db.task_queries import TaskQueries
 import bcrypt
 import random
 

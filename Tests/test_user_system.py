@@ -1,8 +1,8 @@
 from os import system
 
 import pytest
-from Task_Manger_.src.db.connection_test import TestDB
-from Task_Manger_.src.auth.userSystem import UserSystem
+from Task_Manager_.src.db.connection_test import TestDB
+from Task_Manager_.src.auth.userSystem import UserSystem
 import bcrypt
 
 @pytest.fixture

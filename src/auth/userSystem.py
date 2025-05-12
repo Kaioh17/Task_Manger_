@@ -5,7 +5,7 @@ from operator import length_hint
 
 from psycopg2.errorcodes import INVALID_PASSWORD
 
-from Task_Manger_.src.db.connection import DataBase
+from Task_Manager_.src.db.connection import DataBase
 
 import bcrypt
 
