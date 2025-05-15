@@ -7,30 +7,45 @@ from Task_Manager_.src.taskmanager.task_manager import TaskManager
 class Display:
     def __init__(self):
         task_manager = TaskManager()
-        db_connection = DataBase()
+        db = DataBase()
         # tasks = TaskQueries()
 
-        user = UserSystem(db_connection.conn, db_connection.cur)
-        tasks = TaskQueries(db_connection.conn, db_connection.cur)
+        user = UserSystem(db.conn, db.cur)
+        tasks = TaskQueries(db.conn, db.cur)
+
+        print("\n=====TASK MANAGER LOGIN======")
+
+
         user_name = user.login()
 
         user_input = "Y"
         while user_input.upper() == "Y":
             task_dict = tasks.list_tasks(user_name)
 
-            navigate_tool = input("Do you want to 'add' a Task, change a 'status','List' all task, or 'delete' a task?: ").strip().lower()
+            print("\n================")
+            print("  TASK MANAGER  ")
+            print("================\n")
+            print("[1] Add task")
+            print("[2] Status task")
+            print("[3] List task")
+            print("[4] 🗑️Delete task")
+            print("[5] Undo task")
+            print("exit program(exit)")
 
-            if navigate_tool == 'exit': break
-            if navigate_tool == 'add':
+            response = input("\nChoose an option: ").strip().lower()
+
+            if response == 'exit': break
+            if response == 'add' or response == '1':
                 task_name = task_manager.task_info()
                 description = task_manager.add_description()
                 print(tasks.add_task(user_name,task_name, description))
-            elif navigate_tool == 'status':
+            elif response == 'status' or response == '2':
+                print(task_manager.list_all(task_dict))
                 task_id = task_manager.status()
                 print(tasks.toggle_task_status(task_id))
-            elif navigate_tool== 'list':
+            elif response== 'list' or response == '3':
                 print(task_manager.list_all(task_dict))
-            elif navigate_tool == 'delete':
+            elif response == 'delete' or response == '1':
                 print(task_manager.list_all(task_dict)) #prints the available tasks for user to delete
 
                 while True:
@@ -43,7 +58,7 @@ class Display:
                         break
             user_input = input("Do you want to continue?Y|N ").strip().upper()
 
-        db_connection.close_database()
+        db.close_database()
 
 
 if __name__ == "__main__":

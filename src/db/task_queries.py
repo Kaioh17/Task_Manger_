@@ -115,11 +115,21 @@ class TaskQueries:
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
+            # if result:
+            #
+            #     all_data = []
+            #     for data in result:
+            #         task = {
+            #             "task_id": data[0],
+            #             "task_title": data[1],
+            #             "status": data[2]
+            #         }
+            #         all_data.append(task)
 
-                print(all_data)
+                # print(all_data)
                 return all_data
 
-            return {}
+            return []
 
         except Exception as e:
             return f"Error: {e}"
@@ -171,7 +181,7 @@ class TaskQueries:
             self.cur.execute(update_status_query, (new_status,task_id,))
             self.conn.commit()
 
-            return new_status
+            return f"Status has been set to '{new_status}'"
         except (Exception, ValueError) as e:
             return f"Error: {e}"
     """Delete_task will send every deleted task sent to the undo table in order for undo function to be active """
@@ -219,15 +229,15 @@ class TaskQueries:
 
 
 
-    # def undo_task(self, user_nmae):
-    #     try:
-    #         #undo task
-    #         # retrieves last deleted task from the task archive
-    #         # base on user_id matched from login
-    #         return
-    #
-    #     except Exception as e:
-    #         return f"Error: {e}"
+    def undo_task(self, name):
+        try:
+            #undo task
+            # retrieves last deleted task from the task archive
+            # base on user_id matched from login
+            return
+
+        except Exception as e:
+            return f"Error: {e}"
     #
     #     pass
 

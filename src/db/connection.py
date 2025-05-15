@@ -16,6 +16,7 @@ class DataBase:
             _port = os.getenv("DB_port")
             _host = os.getenv("DB_host")
 
+
             self.conn = psycopg2.connect(
                         user=_user,
                         password=_password,
@@ -29,6 +30,8 @@ class DataBase:
 
         except (Exception,psycopg2.Error) as e:
             print(f"Error connecting to database: {e}")
+            raise
+
 
     def close_database(self):
 
@@ -36,5 +39,12 @@ class DataBase:
         self.conn.close()
         print("Connection Closed!!")
 
-# connect_to = DataBase()
-# connect_to.close_database()
+
+
+# def get_db():
+#     db = DataBase()
+#     try:
+#         yield db
+#     finally:
+#         db.cur.close()
+#         db.conn.close()

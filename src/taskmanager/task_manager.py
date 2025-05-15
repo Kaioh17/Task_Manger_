@@ -31,16 +31,16 @@ class TaskManager:
             except (Exception,ValueError) as e:
                 print(f"Error: {e} ")
 
-                retry = input("Do you want to try again?(Y|N) ").strip(). capitalize()
+                retry = input("Do you want to try again?(Y|N): ").strip(). capitalize()
 
                 if retry.lower()!= "y":
                     for _ in range(50):
                         print("-", end = "")
                     return "Exited:("
 
-
-    def add_description(self):
-        task_description = str(input("Do you have a description:"))
+    @staticmethod
+    def add_description():
+        task_description = str(input("Add a description: "))
         return task_description
         # @staticmethod
 
@@ -69,15 +69,12 @@ class TaskManager:
 
     @staticmethod
     def status():
-
         # get task user wants to change status of
         while True:
             try:
-                task_id = input("Enter taskid: ").strip()
+                task_id = input("\nEnter task_id: ").strip()
 
                 return task_id
-                # task2 = TaskQueries(db_connection.conn, db_connection.cur)
-                # task2.status(task_id)
 
             except (KeyError,IndexError) as e:
                 print(f"Error: {e}")

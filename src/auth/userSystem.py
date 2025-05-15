@@ -2,7 +2,7 @@ import random
 import re
 import sys
 from operator import length_hint
-
+import getpass
 from psycopg2.errorcodes import INVALID_PASSWORD
 
 from Task_Manager_.src.db.connection import DataBase
@@ -35,9 +35,11 @@ class UserSystem:
                 request_login = input("Do you have an account(Y|N): ").strip().lower()
 
                 if request_login.lower() != "y":
-                   return self.create_user()
+                    print("\n -----------------------")
+                    return self.create_user()
 
-                user_name = input("User name: ").strip().capitalize()
+                print("\n--------------------------")
+                user_name = input("Username: ").strip().capitalize()
 
                 #check if user exists
                 check_username = """
@@ -52,8 +54,9 @@ class UserSystem:
                     logged_pw = result[0]
                     print(f"welcome {user_name} ")
                     password = input("password: ").strip()
+                    # password = getpass.getpass("password: ").strip()
                     if bcrypt.checkpw(password.encode('utf-8'),logged_pw.encode('utf-8')):
-                        print("Connected successfully you may begin!!!")
+                        print("✅Login successfully-you may begin!!!")
                         return user_name
 
                     else:
