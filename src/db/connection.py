@@ -1,6 +1,7 @@
 import psycopg2
 import os
 from dotenv import load_dotenv
+from psycopg2.extras import RealDictCursor
 
 
 ####using pool to for easier connection
@@ -41,7 +42,7 @@ class DataBase:
 
 
 
-# def get_db():
+# # def get_db():
 #     db = DataBase()
 #     try:
 #         yield db

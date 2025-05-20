@@ -14,8 +14,6 @@ class Display:
         tasks = TaskQueries(db.conn, db.cur)
 
         print("\n=====TASK MANAGER LOGIN======")
-
-
         user_name = user.login()
 
         user_input = "Y"
@@ -45,9 +43,9 @@ class Display:
                 print(tasks.toggle_task_status(task_id))
             elif response== 'list' or response == '3':
                 print(task_manager.list_all(task_dict))
-            elif response == 'delete' or response == '1':
-                print(task_manager.list_all(task_dict)) #prints the available tasks for user to delete
+            elif response == 'delete' or response == '4':
 
+                print(task_manager.list_all(task_dict))
                 while True:
                     task_id = task_manager.del_task()
                     tasks.delete_task(task_id)
@@ -56,6 +54,10 @@ class Display:
 
                     if delete_more != "Y":
                         break
+
+            elif response == 'undo' or response == '5':
+                print(tasks.undo_task(user_name))
+
             user_input = input("Do you want to continue?Y|N ").strip().upper()
 
         db.close_database()

@@ -115,18 +115,9 @@ class TaskQueries:
                 for data in result:
                     task_id = data[0]
                     all_data[task_id] = {data[1]: data[2]}
-            # if result:
-            #
-            #     all_data = []
-            #     for data in result:
-            #         task = {
-            #             "task_id": data[0],
-            #             "task_title": data[1],
-            #             "status": data[2]
-            #         }
-            #         all_data.append(task)
 
-                # print(all_data)
+
+                print(all_data)
                 return all_data
 
             return []
@@ -229,13 +220,27 @@ class TaskQueries:
 
 
 
-    def undo_task(self, name):
+    def undo_task(self, user_name):
         try:
             #undo task
             # retrieves last deleted task from the task archive
             # base on user_id matched from login
-            return
+            self.cur.execute("""SELECT user_id FROM user_table WHERE user_name = %s""", (user_name,))
+            user_id = self.cur.fetchone()[0]
 
+            self._verify_user_id(user_id)
+            self.cur.execute("""SELECT * FROM task_archive WHERE user_id = %s ORDER BY deleted_on DESC LIMIT 1; """, (user_id,))
+            task = self.cur.fetchone()
+
+            print(task)
+            if not task:
+                return "No task to undo"
+
+            self.cur.execute("""INSERT INTO task_table (task_id, user_id, task_name, status) VALUES (%s, %s, %s, %s)""", (task[1], task[2], task[3], task[4]))
+            self.conn.commit()
+
+            ####delete row after send back
+            return "task"
         except Exception as e:
             return f"Error: {e}"
     #
@@ -247,7 +252,7 @@ if __name__ == "__main__":
     test_function =  TaskQueries(db_connection.conn, db_connection.cur)
     test_function.list_tasks('Tosin')
     # test_function.toggle_task_status(3082)
-
+    test_function.undo_task('Tosin')
 
     # test_function.add_task('Tosin',"Set the plane","Check engines" )
     # test_function._description("5503","Get new trucks on the way" )
